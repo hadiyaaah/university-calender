@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Events Notification</title>
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .event {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #fafafa;
+        }
+        .event h3 {
+            color: #007bff;
+            margin: 0;
+        }
+        .event p {
+            color: #555;
+            margin-top: 5px;
+        }
+        .event .date {
+            font-size: 14px;
+            color: #888;
+        }
+        .notify-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .notify-btn:hover {
+            background-color: #0056b3;
+        }
+        .login-container, .signup-container {
+            display: none;
+        }
+        .notification-container {
+            margin-top: 20px;
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .notification {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+        .notification.error {
+            background-color: #dc3545;
+        }
+        /* Styling for login/signup forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .toggle-link {
+            text-align: center;
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="main-container">
+    <h1>College Events Notification</h1>
+
+    <!-- Event Content (will be hidden if not logged in) -->
+    <div id="events-content">
+        <div class="event">
+            <h3>Annual Sports Day</h3>
+            <p class="date">Date: March 15, 2025</p>
+            <p>Join us for a day of fun and competition!</p>
+            <button class="notify-btn" onclick="notifyEvent('Annual Sports Day', 'March 15, 2025')">Set Reminder</button>
+        </div>
+
+        <div class="event">
+            <h3>Guest Lecture on AI</h3>
+            <p class="date">Date: March 20, 2025</p>
+            <p>Special guest lecture by Dr. Smith on the future of AI.</p>
+            <button class="notify-btn" onclick="notifyEvent('Guest Lecture on AI', 'March 20, 2025')">Set Reminder</button>
+        </div>
+
+        <div class="event">
+            <h3>College Fest</h3>
+            <p class="date">Date: April 5, 2025</p>
+            <p>Our annual college fest with music, food, and fun!</p>
+            <button class="notify-btn" onclick="notifyEvent('College Fest', 'April 5, 2025')">Set Reminder</button>
+        </div>
+
+        <!-- Notifications -->
+        <div id="notification-container" class="notification-container"></div>
+
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-container" id="login-container">
+        <h2>Login</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <button type="submit">Login</button>
+            <p class="toggle-link" id="signup-link">Don't have an account? Sign Up</p>
+        </form>
+    </div>
+
+    <!-- Signup Form -->
+    <div class="signup-container" id="signup-container">
+        <h2>Sign Up</h2>
+        <form id="signup-form">
+            <div class="form-group">
+                <label for="signup-email">Email</label>
+                <input type="email" id="signup-email" required>
+            </div>
+            <div class="form-group">
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" required>
+            </div>
+            <div class="form-group">
+                <label for="signup-confirm-password">Confirm Password</label>
+                <input type="password" id="signup-confirm-password" required>
+            </div>
+            <button type="submit">Sign Up</button>
+            <p class="toggle-link" id="login-link">Already have an account? Login</p>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Check if user is logged in
+    if (localStorage.getItem('user')) {
+        showEventsPage();
+    } else {
+        showLoginPage();
+    }
+
+    // Show events page if logged in
+    function showEventsPage() {
+        document.getElementById('events-content').style.display = 'block';
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('signup-container').style.display = 'none';
+    }
+
+    // Show login form
+    function showLoginPage() {
+        document.getElementById('events-content').style.display = 'none';
+        document.getElementById('login-container').style.display = 'block';
+        document.getElementById('signup-container').style.display = 'none';
+    }
+
+    // Show signup form
+    function showSignupPage() {
+        document.getElementById('events-content').style.display = 'none';
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('signup-container').style.display = 'block';
+    }
+
+    // Handle user login
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        // Simple check for user data in localStorage (this is a simplified approach)
+        const storedEmail = localStorage.getItem('userEmail');
+        const storedPassword = localStorage.getItem('userPassword');
+
+        if (email === storedEmail && password === storedPassword) {
+            localStorage.setItem('user', email); // Store user info in localStorage
+            showEventsPage(); // Show events page after login
+        } else {
+            alert('Invalid credentials');
+        }
+    });
+
+    // Handle user signup
+    document.getElementById('signup-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+        const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+        if (password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        // Store the user credentials in localStorage (simplified)
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('userPassword', password);
+        localStorage.setItem('user', email); // Store user as logged in
+
+        showEventsPage(); // Show events page after sign up
+    });
+
+    // Switch to sign up page
+    document.getElementById('signup-link').addEventListener('click', function(e) {
+        e.preventDefault();
+        showSignupPage();
+    });
+
+    // Switch to login page
+    document.getElementById('login-link').addEventListener('click', function(e) {
+        e.preventDefault();
+        showLoginPage();
+    });
+
+    // Logout the user
+    function logout() {
+        localStorage.removeItem('user');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userPassword');
+        showLoginPage(); // Redirect to login page after logout
+    }
+
+    // Notifications handling
+    let notifications = [];
+    function notifyEvent(eventName, eventDate) {
+        const notificationMessage = `Reminder: ${eventName} is on ${eventDate}. Don't miss it!`;
+        notifications.push(notificationMessage);
+        displayNotifications();
+    }
+
+    function displayNotifications() {
+        const notificationContainer = document.getElementById('notification-container');
+        notificationContainer.innerHTML = '';
+        notifications.forEach(notification => {
+            const notificationDiv = document.createElement('div');
+            notificationDiv.classList.add('notification');
+            notificationDiv.innerText = notification;
+            notificationContainer.appendChild(notificationDiv);
+        });
+    }
+</script>
+
+</body>
+</html>
